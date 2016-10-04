@@ -13,21 +13,25 @@ set -e
 source ./scripts/lib/utils.sh
 
 ########################################
-:: configuring local ssh
+:: feature - ssh
 ########################################
 
 # create key/pair on node for use as a deploy key
 [[ ! -f ~/.ssh/id_rsa ]] && ssh-keygen -N '' -t rsa -f ~/.ssh/id_rsa
 
-# copy authorized_keys to correctly location if we have one to import
+# append authorized_keys to correct location if we have one to import
 if [[ -f /vagrant/etc/ssh/authorized_keys ]]; then
-    cp /vagrant/etc/ssh/authorized_keys ~/.ssh/authorized_keys
+    cat /vagrant/etc/ssh/authorized_keys >> ~/.ssh/authorized_keys
     chmod 600 ~/.ssh/authorized_keys
 fi
 
-# setup sshusers group and authorize vagrant ssh user (typically 'vagrant' but on Digital Ocean it's 'root')
-groupadd sshusers
-usermod -a -G sshusers $(whoami)
+# TODO make sure current user's public key is authorized
 
-# reload ssh daemon since we have a custom config it needs to load
-service sshd reload
+# install ssh key/pair and authorized_keys on node
+if [[ -f $VAGRANT_DIR/guest/etc/ssh/id_rsa ]]; then
+  
+  mv $VAGRANT_DIR/guest/etc/ssh/id_rsa ~/.ssh/
+  mv $VAGRANT_DIR/guest/etc/ssh/id_rsa.pub ~/.ssh/
+  
+  chmod 600 ~/.ssh/id_rsa ~/.ssh/id_rsa.pub
+fi

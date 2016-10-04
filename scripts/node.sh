@@ -31,12 +31,8 @@ sed -i 's/keepcache=0/keepcache=1\nmetadata_expire=24h/' /etc/yum.conf
 printf "\n\nexclude=yum nfs-utils kernel*\n" >> /etc/yum.conf
 
 # import gpg keys before installing anything
-rpm --import ./etc/keys/RPM-GPG-KEY-CentOS-6.txt
-rpm --import ./etc/keys/RPM-GPG-KEY-EPEL-6.txt
-rpm --import ./etc/keys/RPM-GPG-KEY-MySql.txt
-rpm --import ./etc/keys/RPM-GPG-KEY-remi.txt
-rpm --import ./etc/keys/RPM-GPG-KEY-nginx.txt
-rpm --import ./etc/keys/RPM-GPG-KEY-Varnish.txt
+rpm --import $VAGRANT_DIR/etc/keys/RPM-GPG-KEY-CentOS-6.txt
+rpm --import $VAGRANT_DIR/etc/keys/RPM-GPG-KEY-EPEL-6.txt
 
 # install wget since it's not in Digital Ocean base image
 yum install -y wget
@@ -46,25 +42,7 @@ if [[ ! -d /var/cache/yum/rpms ]]; then
 fi
 pushd /var/cache/yum/rpms
 
-# redirect stderr -> stdin so info is logged
-# ignore error codes for offline cache (where file does not exist the following commands should fail on rpm --checksig)
-wget --timestamp http://rpms.famillecollet.com/enterprise/remi-release-6.rpm 2>&1 || true
-wget --timestamp http://nginx.org/packages/centos/6/noarch/RPMS/nginx-release-centos-6-0.el6.ngx.noarch.rpm 2>&1 || true
-wget --timestamp https://repo.varnish-cache.org/redhat/varnish-4.1.el6.rpm 2>&1 || true
-wget --timestamp http://repo.mysql.com/mysql-community-release-el6-5.noarch.rpm 2>&1 || true
-
-rpm --checksig remi-release-6.rpm
-rpm --checksig nginx-release-centos-6-0.el6.ngx.noarch.rpm
-rpm --checksig varnish-4.1.el6.rpm
-rpm --checksig mysql-community-release-el6-5.noarch.rpm
-
 yum install -y epel-release
-yum install -y remi-release-6.rpm
-yum install -y nginx-release-centos-6-0.el6.ngx.noarch.rpm
-yum install -y varnish-4.1.el6.rpm
-
-## only setup mysql community rpm if mysql 56 is requested
-[ "$MYSQL_VERSION" == "56" ] && yum install -y /var/cache/yum/rpms/mysql-community-release-el6-5.noarch.rpm
 
 popd
 
@@ -73,21 +51,6 @@ popd
 ########################################
 
 yum update -y
-
-########################################
-:: installing npm package manager
-########################################
-
-yum install -y npm --disableexcludes=all
-npm -g config set cache /var/cache/npm
-npm -g config set cache-min 86400
-
-# fix npm install problem by overwriting symlink with copy of linked version
-if [[ -L /usr/lib/node_modules/inherits ]]; then
-    inherits="$(readlink -f /usr/lib/node_modules/inherits)"
-    rm -f /usr/lib/node_modules/inherits
-    cp -r "$inherits" /usr/lib/node_modules/inherits
-fi
 
 ########################################
 :: setting zone info to match host zone
@@ -107,13 +70,21 @@ fi
 ########################################
 
 yum install -y bash-completion bc man git rsync mysql pv tree
-rsync -av --ignore-existing ./guest/bin/ /usr/local/bin/
+rsync -av --ignore-existing $VAGRANT_DIR/guest/bin/ /usr/local/bin/
+
+########################################
+:: rsync in machine specific overrides
+########################################
+rsync -av --ignore-existing $VAGRANT_DIR/machine/etc/ $VAGRANT_DIR/guest/etc/
+rsync -av --ignore-existing $VAGRANT_DIR/machine/scripts/ $VAGRANT_DIR/scripts/
 
 ########################################
 :: installing configuration into /etc
 ########################################
 
-rsync -av ./guest/etc/ /etc/
+mkdir -p /etc/profile.d/
+rsync -av $VAGRANT_DIR/guest/etc/profile.d/ /etc/profile.d/
+
 git config --global core.excludesfile /etc/.gitignore_global
 
 ########################################

@@ -87,15 +87,34 @@ def machine_fullstack_vm node, host: nil, ip: nil, php_version: nil, mysql_versi
   end
   node.vm.hostname = host
   
-  bootstrap_sh node, ['node', 'config', 'db', 'web'], {
-    ssl_dir: '/etc/ssl',
-    php_version: php_version,
-    mysql_version: mysql_version
+  bootstrap_sh node, [
+      'node',
+      'feature/npm',
+      'feature/sshd',
+      'feature/ssh',
+      'feature/sendmail',
+      'feature/nginx',
+      'feature/varnish',
+      'feature/mysqld',
+      'feature/php',
+      'feature/letsencrypt',
+      'feature/devtools',
+      'feature/redis',
+      'feature/user-remove-apache',
+      'feature/user-www-data'
+    ], {
+      ssl_dir: '/etc/ssl',
+      php_version: php_version,
+      mysql_version: mysql_version
   }
 end
 
 def machine_synced_etc node, path
-  node.vm.synced_folder path, VAGRANT_DIR + '/etc', type: 'rsync', rsync__args: [ '--archive', '-z', '--copy-links' ]
+  node.vm.synced_folder path, VAGRANT_DIR + '/machine/etc', type: 'rsync', rsync__args: [ '--archive', '-z', '--copy-links' ]
+end
+
+def machine_synced_scripts node, path
+  node.vm.synced_folder path, VAGRANT_DIR + '/machine/scripts', type: 'rsync', rsync__args: [ '--archive', '-z', '--copy-links' ]
 end
 
 def configure_sh conf, env = {}
@@ -106,6 +125,6 @@ def configure_sh conf, env = {}
     exports = generate_exports env
 
     conf.name = 'configure.sh'
-    conf.inline = %-#{exports} #{VAGRANT_DIR}/etc/configure.sh-
+    conf.inline = %-#{exports} #{VAGRANT_DIR}/scripts/configure.sh-
   end
 end
