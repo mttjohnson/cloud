@@ -17,8 +17,7 @@ source ./scripts/lib/utils.sh
 ########################################
 
 # Use the remi repo for the newer 3.x version of Redis instead of the default 2.4
-#yum --enablerepo=remi install -y redis
-yum install -y redis
+yum --enablerepo=remi install -y redis
 
 # remove any default config for redis
 mkdir -p $VAGRANT_DIR/backup/etc/init.d/
