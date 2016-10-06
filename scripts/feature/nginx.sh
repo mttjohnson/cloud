@@ -44,6 +44,9 @@ if [[ -d $VAGRANT_DIR/guest/etc/nginx ]]; then
     chown -R root:root /etc/nginx/
 fi
 
+# add nginx user to www-shared group
+usermod -aG www-shared nginx
+
 # create dir where dhparam.pem and ssl cert files are stored
 mkdir -p /etc/nginx/ssl
 chmod 700 /etc/nginx/ssl

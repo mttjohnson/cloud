@@ -28,4 +28,3 @@ fi
 # ensure each of the web services will start on boot
 chkconfig php-fpm on
 service php-fpm start
-

@@ -16,30 +16,49 @@ source ./scripts/lib/utils.sh
 :: feature - redis
 ########################################
 
+# Use the remi repo for the newer 3.x version of Redis instead of the default 2.4
+#yum --enablerepo=remi install -y redis
 yum install -y redis
 
 # remove any default config for redis
-service redis stop
-[[ -f /etc/init.d/redis ]] && mv /etc/init.d/redis $VAGRANT_DIR/guest/etc/init.d/redis.provision-bak #backup should not stay in /etc/init.d
-[[ -f /etc/redis.conf ]] && mv /etc/redis.conf /etc/redis.conf.provision-bak
-
-# it is expected that you would have a cusomized redis install for each instance you wish to have running
-
+mkdir -p $VAGRANT_DIR/backup/etc/init.d/
+[[ -f /etc/init.d/redis ]] && mv /etc/init.d/redis $VAGRANT_DIR/backup/etc/init.d/redis.provision-bak #backup should not stay in /etc/init.d
+[[ ! -d /etc/redis ]] && mkdir /etc/redis
+[[ -f /etc/redis.conf ]] && [[ -f $VAGRANT_DIR/guest/etc/redis.conf ]] && mv /etc/redis.conf /etc/redis/redis-defaults.conf.provision-bak
 
 # rsync any overriden config files for this machine
-#if [[ -d $VAGRANT_DIR/guest/etc/redis ]] && [[ -f $VAGRANT_DIR/guest/etc/init.d/redis* ]]; then
-#    
-#    [[ ! -d /etc/redis ]] && mkdir /etc/redis    
-#    rsync -a $VAGRANT_DIR/guest/etc/redis/ /etc/redis/
-#    chown -R root:root /etc/redis/
-#    
-#    mkdir -p /var/lib/redis-default
-#    chown redis /var/lib/redis*
-#    
-#    rsync -a $VAGRANT_DIR/etc/init.d/redis* /etc/init.d/
-#    chown root:root /etc/init.d/redis*
-#    chmod +x /etc/init.d/redis*
-#    
-#    chkconfig redis-default on
-#    service redis-default start
-#fi
+if [[ -d $VAGRANT_DIR/guest/etc/redis ]]; then
+        
+    rsync -a $VAGRANT_DIR/guest/etc/redis/ /etc/redis/
+    chown -R root:root /etc/redis/
+    
+    export redis_instance_name="redis-fpc"
+    mkdir -p /var/lib/redis/${redis_instance_name}
+    chown redis /var/lib/redis/${redis_instance_name}
+    cp $VAGRANT_DIR/guest/etc/init.d/${redis_instance_name} /etc/init.d/${redis_instance_name}
+    chown root:root /etc/init.d/${redis_instance_name}
+    chmod +x /etc/init.d/${redis_instance_name}
+    chkconfig --add ${redis_instance_name}
+    chkconfig ${redis_instance_name} on
+    service ${redis_instance_name} start
+    
+    export redis_instance_name="redis-obj"
+    mkdir -p /var/lib/redis/${redis_instance_name}
+    chown redis /var/lib/redis/${redis_instance_name}
+    cp $VAGRANT_DIR/guest/etc/init.d/${redis_instance_name} /etc/init.d/${redis_instance_name}
+    chown root:root /etc/init.d/${redis_instance_name}
+    chmod +x /etc/init.d/${redis_instance_name}
+    chkconfig --add ${redis_instance_name}
+    chkconfig ${redis_instance_name} on
+    service ${redis_instance_name} start
+    
+    export redis_instance_name="redis-ses"
+    mkdir -p /var/lib/redis/${redis_instance_name}
+    chown redis /var/lib/redis/${redis_instance_name}
+    cp $VAGRANT_DIR/guest/etc/init.d/${redis_instance_name} /etc/init.d/${redis_instance_name}
+    chown root:root /etc/init.d/${redis_instance_name}
+    chmod +x /etc/init.d/${redis_instance_name}
+    chkconfig --add ${redis_instance_name}
+    chkconfig ${redis_instance_name} on
+    service ${redis_instance_name} start
+fi

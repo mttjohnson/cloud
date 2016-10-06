@@ -13,12 +13,8 @@ set -e
 source ./scripts/lib/utils.sh
 
 ########################################
-:: feature - user www-data
+:: feature - group www-shared
 ########################################
 
-# apache user comes in with the php-fpm rpm
-userdel apache
-
-chown -R root /var/log/php-fpm      # ditch apache ownership
-chgrp -R www-shared /var/lib/php      # ditch apache group
-
+# setup shared www group
+groupadd www-shared

@@ -89,6 +89,7 @@ def machine_fullstack_vm node, host: nil, ip: nil, php_version: nil, mysql_versi
   
   bootstrap_sh node, [
       'node',
+      'feature/group-www-shared',
       'feature/npm',
       'feature/sshd',
       'feature/ssh',

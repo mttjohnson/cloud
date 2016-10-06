@@ -52,4 +52,7 @@ fi
 
 # ensure each of the web services will start on boot
 chkconfig varnish on
+########################################
+:: starting varnish
+########################################
 service varnish start

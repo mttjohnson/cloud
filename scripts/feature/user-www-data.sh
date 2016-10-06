@@ -16,7 +16,7 @@ source ./scripts/lib/utils.sh
 :: feature - user www-data
 ########################################
 
-adduser -rUm -G sshusers www-data
+adduser -rUm -G sshusers,www-shared www-data
 
 # create a key-pair to be used as a deploy key as needed
 [[ ! -f ~www-data/.ssh/id_rsa ]] && sudo -u www-data ssh-keygen -N '' -t rsa -f ~www-data/.ssh/id_rsa

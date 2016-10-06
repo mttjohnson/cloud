@@ -38,10 +38,7 @@ yum update -y
 
 # install php and cross-version dependencies
 yum $extra_repos install -y php-cli php-opcache \
-    php-mysqlnd php-mhash php-curl php-gd php-intl php-mcrypt php-xsl php-mbstring php-soap php-bcmath php-zip
-
-# phpredis does not yet have php7 support
-[[ "$PHP_VERSION" < 70 ]] && yum $extra_repos install -y php-pecl-redis
+    php-mysqlnd php-mhash php-curl php-gd php-intl php-mcrypt php-xsl php-mbstring php-soap php-bcmath php-zip php-json php-pecl-redis
 
 # rsync any overriden config files for this machine
 if [[ -d $VAGRANT_DIR/guest/etc/php.d ]]; then

@@ -69,14 +69,14 @@ fi
 :: installing generic guest tooling
 ########################################
 
-yum install -y bash-completion bc man git rsync mysql pv tree
+yum install -y bash-completion bc man git rsync mysql pv tree ps_mem
 rsync -av --ignore-existing $VAGRANT_DIR/guest/bin/ /usr/local/bin/
 
 ########################################
 :: rsync in machine specific overrides
 ########################################
-rsync -av --ignore-existing $VAGRANT_DIR/machine/etc/ $VAGRANT_DIR/guest/etc/
-rsync -av --ignore-existing $VAGRANT_DIR/machine/scripts/ $VAGRANT_DIR/scripts/
+rsync -av $VAGRANT_DIR/machine/etc/ $VAGRANT_DIR/guest/etc/
+rsync -av $VAGRANT_DIR/machine/scripts/ $VAGRANT_DIR/scripts/
 
 ########################################
 :: installing configuration into /etc

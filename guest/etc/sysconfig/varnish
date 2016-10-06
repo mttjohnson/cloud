@@ -64,3 +64,6 @@ DAEMON_OPTS="-a ${VARNISH_LISTEN_ADDRESS}:${VARNISH_LISTEN_PORT} \
              -S ${VARNISH_SECRET_FILE} \
              -s ${VARNISH_STORAGE} \
              -p cli_buffer=16384"
+
+# optionally include option for HTTPS everywhere sites
+#             -p feature=+esi_ignore_https"
