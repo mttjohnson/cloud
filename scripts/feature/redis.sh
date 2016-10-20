@@ -61,3 +61,11 @@ if [[ -d $VAGRANT_DIR/guest/etc/redis ]]; then
     chkconfig ${redis_instance_name} on
     service ${redis_instance_name} start
 fi
+
+# verify redis is running
+redis-cli -s /var/run/redis/redis-fpc.sock ping
+redis-cli -s /var/run/redis/redis-obj.sock ping
+redis-cli -s /var/run/redis/redis-ses.sock ping
+
+# set directory permissions so non root users can access redis
+chmod 755 /var/run/redis
